@@ -21,7 +21,6 @@ class Signup extends Component {
             password2: null,
             signupError: ''
         }
-        console.log(firebase.firestore().collection('users'))
     }
 
     render() {
