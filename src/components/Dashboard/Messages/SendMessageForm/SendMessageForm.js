@@ -45,9 +45,6 @@ class SendMessageForm extends Component {
         } else return null
     }
 
-
-
-    
 }
 
 

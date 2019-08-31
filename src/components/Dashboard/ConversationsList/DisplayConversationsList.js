@@ -14,6 +14,7 @@ import NotificationImportant from '@material-ui/icons/NotificationImportant';
 
 
 
+
 class DisplayConversationsList extends Component {
 
     render() {
@@ -22,7 +23,7 @@ class DisplayConversationsList extends Component {
         return (
             <main className={classes.root}>
                 <Button variant='contained' fullWidth color='primary' className={classes.newChatBtn}
-                    onClick = {this.newChat}>New Chat Button</Button>
+                    onClick = {() => this.props.newChatClicked()}>New Chat Button</Button>
                 <List>
                     {
                         this.props.chats.map((el, i) =>(

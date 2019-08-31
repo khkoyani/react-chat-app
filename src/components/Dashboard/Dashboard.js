@@ -26,10 +26,13 @@ class Dashboard extends Component {
                 <DisplayConversationsList 
                     clicked={this.selectChatHandler} history={this.props.history}
                     chats={this.state.chatList} selectChat={this.state.selectedChat} user={this.state.user}
-                    getLastMessage={this.getLastMessage} messageSeenByReceiver={this.messageSeenByReceiver}/>
+                    getLastMessage={this.getLastMessage} messageSeenByReceiver={this.messageSeenByReceiver}
+                    newChatFormVisible={this.state.newChatFormVisible} newChatClicked={this.newChatClicked}/>
                 <Button onClick={() => this.signOut()} className={classes.signOutBtn}>Sign Out</Button>
                 { 
-                    this.state.newChatFormVisible ? <NewConversationForm />
+                    this.state.newChatFormVisible ? 
+                    <NewConversationForm user={this.state.user} routeMessage={this.sendMessage} chatList={this.state.chatList}
+                        updateSelectedChat={this.selectChatHandler}/>
                     : <DisplayMessages user={this.state.user}
                         chat = {this.state.chatList[this.state.selectedChat]}
                         sendMessage = {this.sendMessage} updateMessageRead={this.updateMessageRead}/>
@@ -59,12 +62,14 @@ class Dashboard extends Component {
         })
     }
 
-    newChatHandler = () => {
+    newChatClicked = () => {
+        console.log('clicked')
         this.setState({newChatFormVisible: true, selectedChat: null})
     }
 
     selectChatHandler = async (index) => {
-        await this.setState({selectedChat: index})
+        await this.setState({selectedChat: index, newChatFormVisible: false})
+        console.log('inhandler', this.state.selectedChat)
         this.selectedChatFull = this.state.chatList[index]
         this.friend = this.selectedChatFull.users.filter(_user => _user !== this.state.user)[0]
         this.docKey = this.createDocKey()
@@ -87,7 +92,6 @@ class Dashboard extends Component {
     }
 
     messageSeenByReceiver = (user=this.state.user, chat=this.selectedChatFull) => {
-        console.log(chat)
         return this.getLastMessage(chat).sender !== user
     }
 
@@ -101,8 +105,9 @@ class Dashboard extends Component {
          
     }
 
-    sendMessage = (msg) => {
-        firebase.firestore().collection('chats').doc(this.docKey).update({
+    sendMessage = async (msg, docKey=this.docKey) => {
+        console.log('entered')
+        await firebase.firestore().collection('chats').doc(docKey).update({
             messages: firebase.firestore.FieldValue.arrayUnion({
                 message: msg,
                 sender: this.state.user,
@@ -110,7 +115,11 @@ class Dashboard extends Component {
             }),
             read: false
         })
+        console.log('success')
+        return docKey
+        
     }
+
 }
 
 export default withStyles(styles)(Dashboard);
