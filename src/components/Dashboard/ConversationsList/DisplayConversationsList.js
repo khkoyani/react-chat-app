@@ -39,6 +39,11 @@ class DisplayConversationsList extends Component {
                                     </Typography></React.Fragment>
                                 }>
                                 </ListItemText>
+                                {
+                                    this.showUnreadIcon(el) ?
+                                    <ListItemIcon><NotificationImportant className={classes.unreadMessage} /></ListItemIcon>
+                                    : null
+                                }
                             </ListItem>
                             <Divider />
                             </div>
@@ -53,6 +58,11 @@ class DisplayConversationsList extends Component {
     }
     selectChat = (i) => {
         console.log(i)
+    }
+
+    showUnreadIcon = (chat) => {
+        if (chat.read === false && this.props.messageSeenByReceiver(this.props.user, chat)) return true
+        else return false
     }
 }
 
