@@ -17,7 +17,7 @@ class NewConversationForm extends Component {
                 <CssBaseline />
                 <Paper className={classes.paper}>
                     <Typography component='h1' variant='h5'>Send A Message</Typography>
-                    <form className={classes.form} onSubmit={(e) => this.createNewChat(e)}>
+                    <form className={classes.form} onSubmit={(e) => this.newChatFormHandler(e)}>
                         <FormControl fullWidth>
                             <InputLabel htmlFor='new-chat-email'> Enter Your Friend's Email</InputLabel>
                             <Input required className={classes.input} autoFocus 
@@ -48,7 +48,7 @@ class NewConversationForm extends Component {
         }
     }
 
-    createNewChat = async(e) => {
+    newChatFormHandler = async(e) => {
         e.preventDefault()
         this.friendExists()
         this.sendMessageOrCreateNewChat()
@@ -75,12 +75,13 @@ class NewConversationForm extends Component {
             this.props.updateSelectedChat(this.getExistingIndex())
             return chat.data()
         } else {
-
+            this.createNewChat()
         }
         return chat.exists
     }
 
     getExistingIndex = (docKey=this.docKey) => {
+
         return this.props.chatList.findIndex(chat => {
             return chat.users.join(':')===docKey
         })    
@@ -90,7 +91,22 @@ class NewConversationForm extends Component {
         return [user, friend].sort().join(':')
     }
 
-    // newChat = async (chat) 
+    createNewChat = async (message='', docKey=null) => {
+        if (!message) message=this.state.message
+        if (!docKey) docKey=this.createDocKey()
+        console.log(message, docKey)
+        await firebase.firestore().collection('chats').doc(docKey).set({
+            read: false,
+            users: [this.props.user, this.state.friend].sort(),
+            messages: [{
+                message: message,
+                sender: this.props.user,
+                timestamp: Date.now()
+            }]       
+        })
+        this.props.updateSelectedChat(this.getExistingIndex(docKey))
+    }
+
 }
 
 export default withStyles(styles)(NewConversationForm);
